@@ -89,8 +89,13 @@ def consultar_residencias():
 @app.route('/historico', methods=['POST'])
 def adicionar_historico():
     data = request.get_json()
+    try:
+        producao = float(data['producao'])
+        consumo = float(data['consumo'])
+    except ValueError:
+        return jsonify({"error": "Valores de produção e consumo devem ser numéricos."}), 400
 
-    saldo_energetico = data['producao'] - data['consumo']
+    saldo_energetico = producao - consumo
     
     db = Database()
     try:
@@ -101,8 +106,8 @@ def adicionar_historico():
         db.execute(sql, {
             "id_residencia": data["id_residencia"],
             "data_registro": data["data_registro"],
-            "producao": data["producao"],
-            "consumo": data["consumo"],
+            "producao": producao,
+            "consumo": consumo,
             "saldo_energetico": saldo_energetico
         })
         return jsonify({"message": "Histórico de energia adicionado com sucesso!"}), 200
